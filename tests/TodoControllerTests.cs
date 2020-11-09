@@ -8,7 +8,6 @@ using Moq;
 using TodoApi.Controllers;
 using TodoApi.Models;
 using Xunit;
-using Microsoft.Extensions.Logging.Abstractions;
 
 namespace TodoApi.Tests
 {

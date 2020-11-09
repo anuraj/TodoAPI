@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore;
 
 namespace TodoApi.Models
@@ -7,7 +8,7 @@ namespace TodoApi.Models
         public TodoApiDbContext(DbContextOptions options) : base(options)
         {
         }
-
+        [ExcludeFromCodeCoverage]
         protected TodoApiDbContext()
         {
         }
