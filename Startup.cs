@@ -43,7 +43,7 @@ namespace TodoApi
                     }
                 });
             });
-            services.AddDbContext<TodoApiDbContext>(options => options.UseSqlServer(connectionString));
+            services.AddDbContext<TodoApiDbContext>(options => options.UseInMemoryDatabase("TodoDb"));
             services.AddHealthChecks().AddDbContextCheck<TodoApiDbContext>();
             services.AddControllers().AddNewtonsoftJson(options =>
                 options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
