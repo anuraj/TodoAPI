@@ -65,15 +65,20 @@ namespace TodoApi.Tests
         }
 
         [Fact]
-        public void GetOne_Logging_Working()
+        public async Task GetOne_Logging_Working()
         {
             var options = CreateDbContextOptions();
             using (var todoApiDbContext = new TodoApiDbContext(options))
             {
                 var mockLogger = new Mock<ILogger<TodoController>>();
                 var todoController = new TodoController(mockLogger.Object, todoApiDbContext);
-
-                var todo = todoController.GetById(1);
+                var todoCreateResult = await todoController.Create(new TodoItem()
+                {
+                    Description = $"Random-{Guid.NewGuid().ToString("N")}"
+                });
+                var todoTemp = todoCreateResult as CreatedAtRouteResult;
+                var id = (todoTemp.Value as TodoItem).Id;
+                var todo = todoController.GetById(id);
 
                 Assert.IsType<TodoItem>(todo.Value);
 
@@ -82,7 +87,7 @@ namespace TodoApi.Tests
                     It.IsAny<EventId>(),
                     It.IsAny<It.IsAnyType>(),
                     It.IsAny<Exception>(),
-                    (Func<It.IsAnyType, Exception, string>)It.IsAny<object>()), Times.Exactly(2));
+                    (Func<It.IsAnyType, Exception, string>)It.IsAny<object>()));
             }
         }
 
@@ -124,7 +129,7 @@ namespace TodoApi.Tests
         }
 
         [Fact]
-        public void Create_Logging_Working()
+        public async Task Create_Logging_Working()
         {
             var options = CreateDbContextOptions();
             using (var todoApiDbContext = new TodoApiDbContext(options))
@@ -132,9 +137,9 @@ namespace TodoApi.Tests
                 var mockLogger = new Mock<ILogger<TodoController>>();
                 var todoController = new TodoController(mockLogger.Object, todoApiDbContext);
 
-                var todo = todoController.Create(new TodoItem() { Description = "Check logging working on Create" });
+                var todo = await todoController.Create(new TodoItem() { Description = "Check logging working on Create" });
 
-                Assert.IsType<CreatedAtRouteResult>(todo.Result);
+                Assert.IsType<CreatedAtRouteResult>(todo);
 
                 mockLogger.Verify(x => x.Log(
                     It.IsAny<LogLevel>(),
@@ -146,7 +151,7 @@ namespace TodoApi.Tests
         }
 
         [Fact]
-        public void Create_Creates_A_TodoItem()
+        public async Task Create_Creates_A_TodoItem()
         {
             var options = CreateDbContextOptions();
             using (var todoApiDbContext = new TodoApiDbContext(options))
@@ -154,15 +159,15 @@ namespace TodoApi.Tests
                 var mockLogger = new Mock<ILogger<TodoController>>();
                 var todoController = new TodoController(mockLogger.Object, todoApiDbContext);
                 var createdOn = DateTime.UtcNow;
-                var todo = todoController.Create(new TodoItem()
+                var todo = await todoController.Create(new TodoItem()
                 {
                     IsCompleted = false,
                     Description = $"Write test on Create todo item",
                     CreatedOn = createdOn
                 });
 
-                Assert.IsType<CreatedAtRouteResult>(todo.Result);
-                var result = todo.Result as CreatedAtRouteResult;
+                Assert.IsType<CreatedAtRouteResult>(todo);
+                var result = todo as CreatedAtRouteResult;
                 Assert.NotNull(result);
                 Assert.IsType<TodoItem>(result.Value);
                 Assert.Equal("GetTodo", result.RouteName);
@@ -174,7 +179,7 @@ namespace TodoApi.Tests
         }
 
         [Fact]
-        public void Create_Returns_Conflict_If_Todo_Exists()
+        public async Task Create_Returns_Conflict_If_Todo_Exists()
         {
             var options = CreateDbContextOptions();
             using (var todoApiDbContext = new TodoApiDbContext(options))
@@ -182,26 +187,31 @@ namespace TodoApi.Tests
                 var mockLogger = new Mock<ILogger<TodoController>>();
                 var todoController = new TodoController(mockLogger.Object, todoApiDbContext);
 
-                var todo = todoController.Create(new TodoItem() { Description = "Write Blog Post" });
-                var todoDuplicate = todoController.Create(new TodoItem() { Description = "Write Blog Post" });
+                var todo = await todoController.Create(new TodoItem() { Description = "Write Blog Post" });
+                var todoDuplicate = await todoController.Create(new TodoItem() { Description = "Write Blog Post" });
 
-                Assert.IsType<CreatedAtRouteResult>(todo.Result);
-                Assert.IsType<StatusCodeResult>(todoDuplicate.Result);
+                Assert.IsType<CreatedAtRouteResult>(todo);
+                Assert.IsType<StatusCodeResult>(todoDuplicate);
             }
         }
 
         [Fact]
-        public void Update_Update_An_Existing_Todo()
+        public async Task Update_Update_An_Existing_Todo()
         {
             var options = CreateDbContextOptions();
             using (var todoApiDbContext = new TodoApiDbContext(options))
             {
                 var mockLogger = new Mock<ILogger<TodoController>>();
                 var todoController = new TodoController(mockLogger.Object, todoApiDbContext);
-
-                var todo = todoController.Update(1, new TodoItem()
+                var todoCreateResult = await todoController.Create(new TodoItem()
                 {
-                    Id = 1,
+                    Description = "Update this description"
+                });
+                var todoTemp = todoCreateResult as CreatedAtRouteResult;
+                var id = (todoTemp.Value as TodoItem).Id;
+                var todo = todoController.Update(id, new TodoItem()
+                {
+                    Id = id,
                     Description = "Write Blog Post"
                 });
 
