@@ -153,13 +153,23 @@ namespace TodoApi.Tests
             {
                 var mockLogger = new Mock<ILogger<TodoController>>();
                 var todoController = new TodoController(mockLogger.Object, todoApiDbContext);
-                var todo = todoController.Create(new TodoItem() { Description = $"Write test on Create todo item" });
+                var createdOn = DateTime.UtcNow;
+                var todo = todoController.Create(new TodoItem()
+                {
+                    IsCompleted = false,
+                    Description = $"Write test on Create todo item",
+                    CreatedOn = createdOn
+                });
 
                 Assert.IsType<CreatedAtRouteResult>(todo.Result);
                 var result = todo.Result as CreatedAtRouteResult;
                 Assert.NotNull(result);
                 Assert.IsType<TodoItem>(result.Value);
                 Assert.Equal("GetTodo", result.RouteName);
+                var todoItem = result.Value as TodoItem;
+                Assert.NotEqual(0, todoItem.Id);
+                Assert.Equal(createdOn, todoItem.CreatedOn);
+                Assert.False(todoItem.IsCompleted);
             }
         }
 
@@ -177,6 +187,93 @@ namespace TodoApi.Tests
 
                 Assert.IsType<CreatedAtRouteResult>(todo.Result);
                 Assert.IsType<StatusCodeResult>(todoDuplicate.Result);
+            }
+        }
+
+        [Fact]
+        public void Update_Update_An_Existing_Todo()
+        {
+            var options = CreateDbContextOptions();
+            using (var todoApiDbContext = new TodoApiDbContext(options))
+            {
+                var mockLogger = new Mock<ILogger<TodoController>>();
+                var todoController = new TodoController(mockLogger.Object, todoApiDbContext);
+
+                var todo = todoController.Update(1, new TodoItem()
+                {
+                    Id = 1,
+                    Description = "Write Blog Post"
+                });
+
+                Assert.IsType<NoContentResult>(todo);
+            }
+        }
+
+        [Fact]
+        public void Update_Returns_BadRequest_If_Ids_Not_Matching()
+        {
+            var options = CreateDbContextOptions();
+            using (var todoApiDbContext = new TodoApiDbContext(options))
+            {
+                var mockLogger = new Mock<ILogger<TodoController>>();
+                var todoController = new TodoController(mockLogger.Object, todoApiDbContext);
+
+                var todo = todoController.Update(1, new TodoItem()
+                {
+                    Id = 15,
+                    Description = "Write Blog Post"
+                });
+
+                Assert.IsType<BadRequestResult>(todo);
+            }
+        }
+
+        [Fact]
+        public void Update_Returns_NotFound_If_Todo_NotFound()
+        {
+            var options = CreateDbContextOptions();
+            using (var todoApiDbContext = new TodoApiDbContext(options))
+            {
+                var mockLogger = new Mock<ILogger<TodoController>>();
+                var todoController = new TodoController(mockLogger.Object, todoApiDbContext);
+
+                var todo = todoController.Update(15, new TodoItem()
+                {
+                    Id = 15,
+                    Description = "Write Blog Post"
+                });
+
+                Assert.IsType<NotFoundResult>(todo);
+            }
+        }
+
+        [Fact]
+        public void Delete_Returns_NotFound_If_Todo_NotFound()
+        {
+            var options = CreateDbContextOptions();
+            using (var todoApiDbContext = new TodoApiDbContext(options))
+            {
+                var mockLogger = new Mock<ILogger<TodoController>>();
+                var todoController = new TodoController(mockLogger.Object, todoApiDbContext);
+
+                var todo = todoController.Delete(1500);
+
+                Assert.IsType<NotFoundResult>(todo);
+            }
+        }
+
+        [Fact]
+        public void Delete_Returns_NoContent_If_Success()
+        {
+            var options = CreateDbContextOptions();
+            using (var todoApiDbContext = new TodoApiDbContext(options))
+            {
+                var mockLogger = new Mock<ILogger<TodoController>>();
+                var todoController = new TodoController(mockLogger.Object, todoApiDbContext);
+
+                var todo = todoController.Delete(1);
+
+                Assert.IsType<NoContentResult>(todo);
             }
         }
 
