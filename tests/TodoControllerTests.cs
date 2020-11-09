@@ -132,7 +132,7 @@ namespace TodoApi.Tests
                 var mockLogger = new Mock<ILogger<TodoController>>();
                 var todoController = new TodoController(mockLogger.Object, todoApiDbContext);
 
-                var todo = todoController.Create(new TodoItem() { Description = "Write test on Create todo item" });
+                var todo = todoController.Create(new TodoItem() { Description = "Check logging working on Create" });
 
                 Assert.IsType<CreatedAtRouteResult>(todo.Result);
 
@@ -153,8 +153,7 @@ namespace TodoApi.Tests
             {
                 var mockLogger = new Mock<ILogger<TodoController>>();
                 var todoController = new TodoController(mockLogger.Object, todoApiDbContext);
-
-                var todo = todoController.Create(new TodoItem() { Description = "Write test on Create todo item" });
+                var todo = todoController.Create(new TodoItem() { Description = $"Write test on Create todo item" });
 
                 Assert.IsType<CreatedAtRouteResult>(todo.Result);
                 var result = todo.Result as CreatedAtRouteResult;
@@ -173,8 +172,8 @@ namespace TodoApi.Tests
                 var mockLogger = new Mock<ILogger<TodoController>>();
                 var todoController = new TodoController(mockLogger.Object, todoApiDbContext);
 
-                var todo = todoController.Create(new TodoItem() { Description = "Write test on Create todo item" });
-                var todoDuplicate = todoController.Create(new TodoItem() { Description = "Write test on Create todo item" });
+                var todo = todoController.Create(new TodoItem() { Description = "Write Blog Post" });
+                var todoDuplicate = todoController.Create(new TodoItem() { Description = "Write Blog Post" });
 
                 Assert.IsType<CreatedAtRouteResult>(todo.Result);
                 Assert.IsType<StatusCodeResult>(todoDuplicate.Result);
