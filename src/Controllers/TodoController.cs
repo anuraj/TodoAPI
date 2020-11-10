@@ -31,7 +31,7 @@ namespace TodoApi.Controllers
         public async Task<ActionResult<List<TodoItem>>> GetAll()
         {
             _logger.LogInformation("Get All todo items");
-            return await _todoApiDbContext.TodoItems
+            return await _todoApiDbContext.TodoItems.Include(t => t.Tags)
                 .TagWith("Get All todo items")
                 .ToListAsync();
         }
@@ -42,7 +42,7 @@ namespace TodoApi.Controllers
         public ActionResult<TodoItem> GetById(int id)
         {
             _logger.LogInformation($"Get one todo item with id:{id}");
-            var item = _todoApiDbContext.TodoItems
+            var item = _todoApiDbContext.TodoItems.Include(t => t.Tags)
                 .TagWith($"Get Todo with Id : {id}")
                 .FirstOrDefault(todo => todo.Id == id);
             if (item == null)
