@@ -75,7 +75,7 @@ namespace TodoApi.Controllers
                 _logger.LogInformation($"Few tags available. Trying to save them..");
                 foreach (var tag in todoItem.Tags)
                 {
-                    tag.TodoId = todoItem.Id;
+                    tag.TodoItem = todoItem;
                     _todoApiDbContext.Tags.Add(tag);
                 }
             }
