@@ -70,6 +70,16 @@ namespace TodoApi.Controllers
             }
 
             _todoApiDbContext.TodoItems.Add(todoItem);
+            if (todoItem.Tags != null)
+            {
+                _logger.LogInformation($"Few tags available. Trying to save them..");
+                foreach (var tag in todoItem.Tags)
+                {
+                    tag.TodoId = todoItem.Id;
+                    _todoApiDbContext.Tags.Add(tag);
+                }
+            }
+
             _todoApiDbContext.SaveChanges();
             _logger.LogInformation($"Saved to DB and now returns GetURL");
             return CreatedAtRoute("GetTodo", new { id = todoItem.Id }, todoItem);

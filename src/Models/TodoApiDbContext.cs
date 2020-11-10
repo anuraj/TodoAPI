@@ -13,5 +13,6 @@ namespace TodoApi.Models
         {
         }
         public DbSet<TodoItem> TodoItems { get; set; }
+        public DbSet<Tag> Tags { get; set; }
     }
 }
