@@ -1,2 +1,6 @@
 obj
 bin
+TestResults
+coverlet
+.vscode
+.vs
