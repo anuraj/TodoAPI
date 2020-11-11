@@ -8,6 +8,11 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using TodoApi.Models;
 using System.Diagnostics.CodeAnalysis;
+using Microsoft.AspNetCore.Mvc;
+using TodoApi.Filters;
+using Swashbuckle.AspNetCore.SwaggerGen;
+using System.Reflection;
+using System.Linq;
 
 namespace TodoApi
 {
@@ -25,17 +30,23 @@ namespace TodoApi
         public void ConfigureServices(IServiceCollection services)
         {
             var connectionString = Configuration.GetConnectionString("TodoDbConnection");
-            services.AddSwaggerGen(c =>
+            services.AddApiVersioning(options =>
+           {
+               options.AssumeDefaultVersionWhenUnspecified = true;
+               options.ReportApiVersions = true;
+               options.DefaultApiVersion = new ApiVersion(1, 0);
+           });
+            services.AddSwaggerGen(options =>
             {
-                c.SwaggerDoc("v1", new OpenApiInfo
+                options.SwaggerDoc("1.0", new OpenApiInfo
                 {
-                    Version = "v1",
+                    Version = "1.0",
                     Title = "ToDo API",
                     Description = "Todo Application API",
                     Contact = new OpenApiContact
                     {
                         Name = "anuraj",
-                        Email = string.Empty,
+                        Email = "anuraj@dotnetthoughts.net",
                         Url = new Uri("https://twitter.com/anuraj"),
                     },
                     License = new OpenApiLicense
@@ -44,7 +55,51 @@ namespace TodoApi
                         Url = new Uri("https://anuraj.mit-license.org/"),
                     }
                 });
+
+                options.SwaggerDoc("2.0", new OpenApiInfo
+                {
+                    Version = "2.0",
+                    Title = "ToDo API",
+                    Description = "Todo Application API",
+                    Contact = new OpenApiContact
+                    {
+                        Name = "anuraj",
+                        Email = "anuraj@dotnetthoughts.net",
+                        Url = new Uri("https://twitter.com/anuraj"),
+                    },
+                    License = new OpenApiLicense
+                    {
+                        Name = "Use under MIT",
+                        Url = new Uri("https://anuraj.mit-license.org/"),
+                    }
+                });
+
+                options.OperationFilter<RemoveVersionFromParameter>();
+                options.DocumentFilter<ReplaceVersionWithExactValueInPath>();
+
+                options.DocInclusionPredicate((version, desc) =>
+                {
+                    if (!desc.TryGetMethodInfo(out MethodInfo methodInfo))
+                    {
+                        return false;
+                    }
+
+                    var versions = methodInfo.DeclaringType
+                        .GetCustomAttributes(true)
+                        .OfType<ApiVersionAttribute>()
+                        .SelectMany(attr => attr.Versions);
+
+                    var maps = methodInfo
+                        .GetCustomAttributes(true)
+                        .OfType<MapToApiVersionAttribute>()
+                        .SelectMany(attr => attr.Versions)
+                        .ToArray();
+
+                    return versions.Any(v => v.ToString() == version)
+                           && (!maps.Any() || maps.Any(v => v.ToString() == version));
+                });
             });
+
             services.AddDbContext<TodoApiDbContext>(options => options.UseSqlServer(connectionString));
             services.AddHealthChecks().AddDbContextCheck<TodoApiDbContext>();
             services.AddControllers().AddNewtonsoftJson(options =>
@@ -66,10 +121,11 @@ namespace TodoApi
 
             app.UseHttpsRedirection();
             app.UseSwagger();
-            app.UseSwaggerUI(options =>
+            app.UseSwaggerUI(c =>
             {
-                options.SwaggerEndpoint("/swagger/v1/swagger.json", "Todo API v1");
-                options.RoutePrefix = string.Empty;
+                c.SwaggerEndpoint($"/swagger/1.0/swagger.json", $"1.0");
+                c.SwaggerEndpoint($"/swagger/2.0/swagger.json", $"2.0");
+                c.RoutePrefix = string.Empty;
             });
             app.UseRouting();
 

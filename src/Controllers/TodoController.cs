@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
@@ -11,10 +12,12 @@ using TodoApi.Models;
 namespace TodoApi.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
     [Produces("application/json")]
     [ApiConventionType(typeof(DefaultApiConventions))]
     [Consumes("application/json")]
+    [ApiVersion("1.0")]
+    [ApiVersion("2.0")]
+    [Route("{apiVersion}/[controller]")]
     public class TodoController : ControllerBase
     {
         private readonly ILogger<TodoController> _logger;
@@ -34,6 +37,29 @@ namespace TodoApi.Controllers
             return await _todoApiDbContext.TodoItems.Include(t => t.Tags)
                 .TagWith("Get All todo items")
                 .ToListAsync();
+        }
+
+        [HttpGet]
+        [Route("search")]
+        [ProducesResponseType(typeof(List<TodoItem>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [MapToApiVersion("2.0")]
+        public async Task<ActionResult<List<TodoItem>>> SearchTodo([FromQuery, Required] string keyword)
+        {
+            _logger.LogInformation("Search todo items");
+
+            var todoItems = await _todoApiDbContext.TodoItems
+                .Where(todo => todo.Description.Contains(keyword))
+                .Include(t => t.Tags)
+                .TagWith($"Get All todo items where description contains {keyword}")
+                .ToListAsync();
+
+            if (todoItems.Any())
+            {
+                return todoItems;
+            }
+
+            return NotFound();
         }
 
         [HttpGet("{id}", Name = "GetTodo")]
