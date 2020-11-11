@@ -13,7 +13,10 @@ using TodoApi.Models;
 namespace TodoApi.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
+    [ApiVersion("1.0")]
+    [ApiVersion("2.0")]
+    [ApiVersion("3.0")]
+    [Route("{version:apiVersion}/[controller]")]
     [Produces("application/json")]
     [ApiConventionType(typeof(DefaultApiConventions))]
     public class HealthController : ControllerBase

@@ -17,7 +17,8 @@ namespace TodoApi.Controllers
     [Consumes("application/json")]
     [ApiVersion("1.0")]
     [ApiVersion("2.0")]
-    [Route("{apiVersion}/[controller]")]
+    [ApiVersion("3.0")]
+    [Route("{version:apiVersion}/[controller]")]
     public class TodoController : ControllerBase
     {
         private readonly ILogger<TodoController> _logger;
@@ -34,32 +35,10 @@ namespace TodoApi.Controllers
         public async Task<ActionResult<List<TodoItem>>> GetAll()
         {
             _logger.LogInformation("Get All todo items");
-            return await _todoApiDbContext.TodoItems.Include(t => t.Tags)
+            return await _todoApiDbContext.TodoItems
+                .Include(t => t.Tags)
                 .TagWith("Get All todo items")
                 .ToListAsync();
-        }
-
-        [HttpGet]
-        [Route("search")]
-        [ProducesResponseType(typeof(List<TodoItem>), StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [MapToApiVersion("2.0")]
-        public async Task<ActionResult<List<TodoItem>>> SearchTodo([FromQuery, Required] string keyword)
-        {
-            _logger.LogInformation("Search todo items");
-
-            var todoItems = await _todoApiDbContext.TodoItems
-                .Where(todo => todo.Description.Contains(keyword))
-                .Include(t => t.Tags)
-                .TagWith($"Get All todo items where description contains {keyword}")
-                .ToListAsync();
-
-            if (todoItems.Any())
-            {
-                return todoItems;
-            }
-
-            return NotFound();
         }
 
         [HttpGet("{id}", Name = "GetTodo")]
@@ -116,6 +95,7 @@ namespace TodoApi.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [MapToApiVersion("2.0")]
         public IActionResult Update(int id, TodoItem todoItem)
         {
             _logger.LogInformation($"Updating todo");
@@ -143,6 +123,7 @@ namespace TodoApi.Controllers
         [HttpDelete("{id}")]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [MapToApiVersion("3.0")]
         public IActionResult Delete(int id)
         {
             _logger.LogInformation($"Deleting a todo.");

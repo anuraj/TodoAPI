@@ -30,12 +30,7 @@ namespace TodoApi
         public void ConfigureServices(IServiceCollection services)
         {
             var connectionString = Configuration.GetConnectionString("TodoDbConnection");
-            services.AddApiVersioning(options =>
-           {
-               options.AssumeDefaultVersionWhenUnspecified = true;
-               options.ReportApiVersions = true;
-               options.DefaultApiVersion = new ApiVersion(1, 0);
-           });
+
             services.AddSwaggerGen(options =>
             {
                 options.SwaggerDoc("1.0", new OpenApiInfo
@@ -59,6 +54,24 @@ namespace TodoApi
                 options.SwaggerDoc("2.0", new OpenApiInfo
                 {
                     Version = "2.0",
+                    Title = "ToDo API",
+                    Description = "Todo Application API",
+                    Contact = new OpenApiContact
+                    {
+                        Name = "anuraj",
+                        Email = "anuraj@dotnetthoughts.net",
+                        Url = new Uri("https://twitter.com/anuraj"),
+                    },
+                    License = new OpenApiLicense
+                    {
+                        Name = "Use under MIT",
+                        Url = new Uri("https://anuraj.mit-license.org/"),
+                    }
+                });
+
+                options.SwaggerDoc("3.0", new OpenApiInfo
+                {
+                    Version = "3.0",
                     Title = "ToDo API",
                     Description = "Todo Application API",
                     Contact = new OpenApiContact
@@ -105,6 +118,12 @@ namespace TodoApi
             services.AddControllers().AddNewtonsoftJson(options =>
                 options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
             );
+            services.AddApiVersioning(options =>
+            {
+                options.AssumeDefaultVersionWhenUnspecified = true;
+                options.ReportApiVersions = true;
+                options.DefaultApiVersion = new ApiVersion(1, 0);
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -125,6 +144,7 @@ namespace TodoApi
             {
                 c.SwaggerEndpoint($"/swagger/1.0/swagger.json", $"1.0");
                 c.SwaggerEndpoint($"/swagger/2.0/swagger.json", $"2.0");
+                c.SwaggerEndpoint($"/swagger/3.0/swagger.json", $"3.0");
                 c.RoutePrefix = string.Empty;
             });
             app.UseRouting();
