@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -5,6 +6,7 @@ using Microsoft.Extensions.Logging;
 namespace TodoApi.Controllers
 {
     [ApiController]
+    [ExcludeFromCodeCoverage]
     public class ErrorController : ControllerBase
     {
         private readonly ILogger<ErrorController> _logger;

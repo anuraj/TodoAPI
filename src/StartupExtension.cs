@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 using Microsoft.AspNetCore.Mvc;
@@ -9,6 +10,7 @@ using TodoApi.Filters;
 
 public static class StartupExtensions
 {
+    [ExcludeFromCodeCoverage]
     public static IServiceCollection AddSwaggerSupport(this IServiceCollection services)
     {
         services.AddSwaggerGen(options =>

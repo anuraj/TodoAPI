@@ -1,17 +1,13 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
+using System.Diagnostics.CodeAnalysis;
 using System.Net;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Logging;
-using TodoApi.Models;
 
 namespace TodoApi.Controllers
 {
+    [ExcludeFromCodeCoverage]
     [ApiController]
     [ApiVersion("1.0")]
     [ApiVersion("2.0")]
