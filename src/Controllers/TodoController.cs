@@ -18,7 +18,7 @@ namespace TodoApi.Controllers
     [ApiVersion("1.0")]
     [ApiVersion("2.0")]
     [ApiVersion("3.0")]
-    [Route("api/{version:apiVersion}/[controller]")]
+    [Route("{version:apiVersion}/[controller]")]
     public class TodoController : ControllerBase
     {
         private readonly ILogger<TodoController> _logger;

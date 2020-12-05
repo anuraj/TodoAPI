@@ -21,7 +21,7 @@ namespace TodoApi.Filters
             foreach (var (key, value) in swaggerDoc.Paths)
             {
                 replacements.Add(key.Replace("{version}", swaggerDoc.Info.Version,
-                        StringComparison.InvariantCulture).Replace("api/", ""), value);
+                        StringComparison.InvariantCulture), value);
             }
 
             swaggerDoc.Paths = replacements;
