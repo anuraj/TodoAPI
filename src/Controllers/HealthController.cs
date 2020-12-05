@@ -12,7 +12,7 @@ namespace TodoApi.Controllers
     [ApiVersion("1.0")]
     [ApiVersion("2.0")]
     [ApiVersion("3.0")]
-    [Route("{version:apiVersion}/[controller]")]
+    [Route("api/{version:apiVersion}/[controller]")]
     [Produces("application/json")]
     [ApiConventionType(typeof(DefaultApiConventions))]
     public class HealthController : ControllerBase
@@ -27,6 +27,7 @@ namespace TodoApi.Controllers
         }
 
         [HttpGet]
+        [ProducesResponseType(503)]
         public async Task<IActionResult> Get()
         {
             var report = await _healthCheckService.CheckHealthAsync();

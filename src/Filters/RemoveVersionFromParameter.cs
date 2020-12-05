@@ -1,3 +1,4 @@
+using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Microsoft.OpenApi.Models;
@@ -10,6 +11,11 @@ namespace TodoApi.Filters
     {
         public void Apply(OpenApiOperation operation, OperationFilterContext context)
         {
+            if (operation == null)
+            {
+                throw new ArgumentNullException(nameof(operation));
+            }
+            
             var versionParameter = operation.Parameters.Single(p => p.Name == "version");
             operation.Parameters.Remove(versionParameter);
         }

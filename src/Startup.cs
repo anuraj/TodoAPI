@@ -7,6 +7,8 @@ using Microsoft.Extensions.Hosting;
 using TodoApi.Models;
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.AspNetCore.Mvc;
+using System.Collections.Generic;
+using Microsoft.OpenApi.Models;
 
 namespace TodoApi
 {
@@ -53,7 +55,16 @@ namespace TodoApi
             }
 
             app.UseHttpsRedirection();
-            app.UseSwagger(c => c.SerializeAsV2 = true);
+            var basePath = "/api";
+            app.UseSwagger(c =>
+            {
+                c.SerializeAsV2 = true;
+                c.RouteTemplate = "swagger/{documentName}/swagger.json";
+                c.PreSerializeFilters.Add((swaggerDoc, httpReq) =>
+                {
+                    swaggerDoc.Servers = new List<OpenApiServer> { new OpenApiServer { Url = $"{httpReq.Scheme}://{httpReq.Host.Value}{basePath}" } };
+                });
+            });
             app.UseSwaggerUI(c =>
             {
                 c.SwaggerEndpoint($"/swagger/1.0/swagger.json", $"1.0");
