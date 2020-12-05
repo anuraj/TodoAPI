@@ -53,7 +53,7 @@ namespace TodoApi
             }
 
             app.UseHttpsRedirection();
-            app.UseSwagger();
+            app.UseSwagger(c => c.SerializeAsV2 = true);
             app.UseSwaggerUI(c =>
             {
                 c.SwaggerEndpoint($"/swagger/1.0/swagger.json", $"1.0");
