@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
@@ -15,6 +16,22 @@ public static class StartupExtensions
     {
         services.AddSwaggerGen(options =>
         {
+            options.AddSecurityDefinition("oauth2", new OpenApiSecurityScheme
+            {
+                Type = SecuritySchemeType.OAuth2,
+                Flows = new OpenApiOAuthFlows()
+                {
+                    Implicit = new OpenApiOAuthFlow()
+                    {
+                        AuthorizationUrl = new Uri("https://login.microsoftonline.com/7493ef9e-db24-45d8-91b5-9c36018d6d52/oauth2/v2.0/authorize"),
+                        TokenUrl = new Uri("https://login.microsoftonline.com/7493ef9e-db24-45d8-91b5-9c36018d6d52/oauth2/v2.0/token"),
+                        Scopes = new Dictionary<string, string>
+                        {
+                            { "api://fe829e9f-ea47-4178-a0d3-9c07bb70de24/Manage.TodoItems", "Manage Todo Items" }
+                        }
+                    }
+                }
+            });
             options.SwaggerDoc("1.0", new OpenApiInfo
             {
                 Version = "1.0",
@@ -92,6 +109,24 @@ public static class StartupExtensions
 
                 return versions.Any(v => v.ToString() == version)
                         && (!maps.Any() || maps.Any(v => v.ToString() == version));
+            });
+
+            options.AddSecurityRequirement(new OpenApiSecurityRequirement()
+            {
+                {
+                    new OpenApiSecurityScheme
+                    {
+                        Reference = new OpenApiReference
+                        {
+                            Type = ReferenceType.SecurityScheme,
+                            Id = "oauth2"
+                        },
+                        Scheme = "oauth2",
+                        Name = "oauth2",
+                        In = ParameterLocation.Header
+                    },
+                    new List<string>()
+                }
             });
         });
 

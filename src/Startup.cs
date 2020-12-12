@@ -9,6 +9,8 @@ using System.Diagnostics.CodeAnalysis;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using Microsoft.OpenApi.Models;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.Identity.Web;
 
 namespace TodoApi
 {
@@ -25,10 +27,11 @@ namespace TodoApi
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                .AddMicrosoftIdentityWebApi(Configuration.GetSection("AzureAd"));
             var connectionString = Configuration.GetConnectionString("TodoDbConnection");
 
             services.AddSwaggerSupport();
-
             services.AddDbContext<TodoApiDbContext>(options => options.UseSqlServer(connectionString));
             services.AddHealthChecks().AddDbContextCheck<TodoApiDbContext>();
             services.AddControllers().AddNewtonsoftJson(options =>
@@ -68,9 +71,13 @@ namespace TodoApi
                 c.SwaggerEndpoint($"/swagger/2.0/swagger.json", $"2.0");
                 c.SwaggerEndpoint($"/swagger/3.0/swagger.json", $"3.0");
                 c.RoutePrefix = string.Empty;
+                c.OAuthClientId("fe829e9f-ea47-4178-a0d3-9c07bb70de24");
+                c.OAuthClientSecret("Lj.LMg56TbQ7Gaw6~Vo1lts-5q~34iWvD9");
+                c.OAuthUseBasicAuthenticationWithAccessCodeGrant();
             });
             app.UseRouting();
 
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>

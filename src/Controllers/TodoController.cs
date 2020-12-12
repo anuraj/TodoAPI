@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -19,6 +20,7 @@ namespace TodoApi.Controllers
     [ApiVersion("2.0")]
     [ApiVersion("3.0")]
     [Route("{version:apiVersion}/[controller]")]
+    [Authorize]
     public class TodoController : ControllerBase
     {
         private readonly ILogger<TodoController> _logger;
